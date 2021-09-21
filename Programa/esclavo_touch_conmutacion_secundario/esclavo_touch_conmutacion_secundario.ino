@@ -1,37 +1,68 @@
 const int En_WrRd_RS485 = 2;
-const int Led_1 = 3;
+const int Rele    = 3;
+const int led1    = 4;
 const int touchIn = 9;
-boolean touchState;
-char id='J';// UPCASE
-char VarChar = ' ';
-String BufferIn = "";
-boolean StringCompleta = false;
+const int t     =  90;
+
+String    id    = "E";// UPCASE
+String    inputString;
+
+boolean    touchState;
 
 // Set up
 void setup(){
-  Serial.begin (9600);
-  pinMode (En_WrRd_RS485, OUTPUT);
-  pinMode (Led_1, OUTPUT);
-  pinMode (touchIn, INPUT);
-  digitalWrite (En_WrRd_RS485, LOW);
-  digitalWrite (Led_1, LOW);
+  // Serial init
+  Serial.begin(9600);
+
+  // Pin setup
+  pinMode(En_WrRd_RS485, OUTPUT);
+  pinMode(Rele, OUTPUT);
+  pinMode(led1, OUTPUT);
+  pinMode(touchIn, INPUT);
+
+  // Pin init
+  digitalWrite(En_WrRd_RS485, LOW);
+  digitalWrite(Rele, LOW);
+  digitalWrite(led1, LOW);
+
+  // touchState
   touchState = false;
 }
-//loop
 
+//loop
 void loop(){
-  if(digitalRead(touchIn)){
-    touchState = !(touchState);
-    digitalWrite(Led_1,touchState);
-    delay(360);
-    send();delay(50);
-  }
+  touchEvent();
 }
+
+
+void touchEvent(){
+    if(digitalRead(touchIn)){
+      touchState = !(touchState);
+      digitalWrite(Rele,touchState);
+      send();
+      delay(160);
+    }
+  }
 void send(){
-  delay(5);
   digitalWrite(En_WrRd_RS485, HIGH);
-  Serial.print(id);
-  Serial.print ('#');
+  blink();
+  delay(5);
+  Serial.println( id + "#");
   Serial.flush();
   digitalWrite(En_WrRd_RS485, LOW);
 }
+
+void blink(){
+  digitalWrite(led1,HIGH);
+  delay(t);
+  digitalWrite(led1,LOW);
+  delay(t);
+  digitalWrite(led1,HIGH);
+  delay(t);
+  digitalWrite(led1,LOW);
+  delay(t);
+  digitalWrite(led1,HIGH);
+  delay(t);
+  digitalWrite(led1,LOW);
+}
+
