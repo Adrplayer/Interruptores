@@ -1,7 +1,11 @@
 import serial
 import time
 
-com = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=1, write_timeout=1)
+com = serial.Serial(port='/dev/ttyUSB0',
+                    baudrate=9600,
+                    timeout=1,
+                    write_timeout=1
+                    )
 print(com.name)
 
 if __name__ == '__main__':
