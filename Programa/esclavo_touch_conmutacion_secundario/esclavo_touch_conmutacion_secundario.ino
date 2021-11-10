@@ -4,7 +4,7 @@ const int led1    = 4;
 const int touchIn = 9;
 const int t     =  90;
 
-String    id    = "E";// UPCASE
+String    id    = "D";// UPCASE
 String    inputString;
 
 boolean    touchState;
@@ -40,12 +40,12 @@ void touchEvent(){
       touchState = !(touchState);
       digitalWrite(Rele,touchState);
       send();
-      delay(160);
+      delay(60);
     }
   }
 void send(){
   digitalWrite(En_WrRd_RS485, HIGH);
-  blink();
+  /* blink(); */
   delay(5);
   Serial.println( id + "#");
   Serial.flush();

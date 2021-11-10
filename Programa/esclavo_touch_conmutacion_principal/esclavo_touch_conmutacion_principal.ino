@@ -4,8 +4,8 @@ const int led1    = 4;
 const int touchIn = 9;
 const int t     = 100;
 
-String    id    = "E";// UPCASE
-String    _id   = "e";//DOWNCASE
+String    id    = "F";// UPCASE
+String    _id   = "f";//DOWNCASE
 String    inputString;
 
 boolean    touchState;
@@ -39,8 +39,8 @@ void loop(){
 }
 
 void serialEvent(){
-  while(Serial.available()){
-    digitalWrite(led1,HIGH);
+    /* digitalWrite(led1,HIGH); */
+  while(Serial.available() > 0){
     char inputChar = Serial.read();
     inputString += inputChar;
     if(inputChar == '#'){
@@ -48,8 +48,8 @@ void serialEvent(){
       continue;
     }
   }
-  digitalWrite(led1,LOW);
-  delay(200);
+  /* digitalWrite(led1,LOW); */
+  /* delay(200); */
   if (completeString){
     if(inputString.indexOf(id)>=0){
       touchState = !(touchState);
@@ -65,18 +65,17 @@ void touchEvent(){
     if(digitalRead(touchIn)){
       touchState = !(touchState);
       digitalWrite(Rele,touchState);
-      delay(360);
+      delay(60); // *
       send();
     }
   }
 void send(){
   digitalWrite(En_WrRd_RS485, HIGH);
-  blink();
-  delay(5);
+  /* blink(); */
   Serial.println( _id + String(touchState) + "#");
   Serial.flush();
   digitalWrite(En_WrRd_RS485, LOW);
-  blink();
+  /* blink(); */
 }
 
 void blink(){

@@ -4,7 +4,6 @@ import serial  # serial port
 
 from flask import Flask, render_template, request  # flask utils
 import flask
-import json
 
 
 class log:
@@ -22,6 +21,9 @@ class log:
     def get_log(self):
         return self.items
 
+    def clear(self):
+        self.items.clear()
+
 
 app = Flask(__name__)  # flask init
 
@@ -35,6 +37,12 @@ def root():
     test_array = data_log.get_log()
 
     return render_template("test1.html", input_from_python=test_array)
+
+
+@app.route("/command/<string:cmd>")
+def command(cmd):
+    if cmd == "clear":
+        log.clear()
 
 
 @app.route("/get", methods=["POST"])  # Get the messange to send

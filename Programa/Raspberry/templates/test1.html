@@ -9,7 +9,7 @@
         $(document).ready(function(){
             if (!!window.EventSource) {
                 console.log('SSE supported.');
-                var source = new EventSource('http://localhost:5000/barcode');
+                var source = new EventSource('http://adrianbo.duckdns.org:5000/barcode');
 
                 source.addEventListener('message', function(e) {
                   console.log(e.data);
@@ -65,6 +65,7 @@
             </div>
           </div>
         </form>
+              <button action="/command/clear">clear</button>
       </div>
     </div>
 
