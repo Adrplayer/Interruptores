@@ -1,10 +1,18 @@
+/*
+TODO
+
+[x] Remove blink funct
+[x] Remove t variable
+
+*/
+
+
 const int En_WrRd_RS485 = 2;
 const int Rele    = 3;
 const int led1    = 4;
 const int touchIn = 9;
-const int t     =  90;
 
-String    id    = "D";// UPCASE
+String    id    = "C";// UPCASE
 String    inputString;
 
 boolean    touchState;
@@ -40,29 +48,15 @@ void touchEvent(){
       touchState = !(touchState);
       digitalWrite(Rele,touchState);
       send();
-      delay(60);
+      delay(600);
     }
   }
 void send(){
   digitalWrite(En_WrRd_RS485, HIGH);
-  /* blink(); */
-  delay(5);
+  /* digitalWrite(led1,HIGH); */
+  delay(10);
   Serial.println( id + "#");
   Serial.flush();
+  /* digitalWrite(led1,LOW); */
   digitalWrite(En_WrRd_RS485, LOW);
 }
-
-void blink(){
-  digitalWrite(led1,HIGH);
-  delay(t);
-  digitalWrite(led1,LOW);
-  delay(t);
-  digitalWrite(led1,HIGH);
-  delay(t);
-  digitalWrite(led1,LOW);
-  delay(t);
-  digitalWrite(led1,HIGH);
-  delay(t);
-  digitalWrite(led1,LOW);
-}
-
