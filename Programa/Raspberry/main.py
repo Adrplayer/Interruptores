@@ -3,6 +3,7 @@
 import serial  # serial port
 
 from flask import Flask, render_template, request  # flask utils
+from datetime import datetime
 import flask
 
 
@@ -11,9 +12,9 @@ class log:
         self.items = []
         self.max = max
 
-    def add(self, msg, rx=False):
-        self.items.append([rx, msg])
-        print(type(len(self.items)))
+    def add(self, msg, rx=False, time=None):
+        self.items.append([rx, msg, time])
+        # print(type(len(self.items)))
 
     def pop(self, x=0):
         self.items.pop(x)
@@ -54,7 +55,8 @@ def test_get():
     print(f"The mensage to send is: {msg}")
     print("*********************\n")
     if msg != "":
-        data_log.add(msg)
+        time = datetime.now().strftime('%d/%m %H:%M:%S')
+        data_log.add(msg, time=time)
         send = msg + "\r\n"
         print(data_log.get_log())
         ser.write(send.encode())
@@ -75,8 +77,10 @@ def serial_update():
     newresponse.headers.add('Cache-Control', 'no-cache')
     print(f"type -> {newresponse.data}")
     msg_ = newresponse.data.decode().rstrip().replace("data:", "")
-    data_log.add(msg_, rx=True)
+    time = datetime.now().strftime('%d/%m %H:%M:%S')
+    data_log.add(msg_, rx=True, time=time)
     print("---------------------")
+    print(f"| Time at: {time} ")
     print(f"| Mensage recibed: {msg_} ")
     print("---------------------\n")
     print(data_log.get_log())

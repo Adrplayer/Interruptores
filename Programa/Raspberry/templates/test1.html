@@ -1,77 +1,129 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
-<head>
-    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>TEST</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+    <script
+      src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
     <script>
+      function zfill(number, width) {
+        var numberOutput = Math.abs(number); /* Valor absoluto del número */
+        var length = number.toString().length; /* Largo del número */
+        var zero = "0"; /* String de cero */
 
-        $(document).ready(function(){
-            if (!!window.EventSource) {
-                console.log('SSE supported.');
-                var source = new EventSource('http://adrianbo.duckdns.org:5000/barcode');
-
-                source.addEventListener('message', function(e) {
-                  console.log(e.data);
-                  var dataHtml = '<p class="botText"><span style="color:blue"> Recibed: </span> <span>' + e.data + "</span></p>";
-                  $("#chatbox").append($.parseHTML(dataHtml));
-                }, false);
-
-                source.addEventListener('open', function(e) {
-                  console.log('Connection was opened.');
-                }, false);
-
-                source.addEventListener('error', function(e) {
-                  if (e.readyState == EventSource.CLOSED) {
-                    console.log('Connection was closed.');
-                  }
-                }, false);
-
-            } else {
-                console.log('SSE notsupported.');
-            }
-        });
-
+        if (width <= length) {
+          if (number < 0) {
+            return "-" + numberOutput.toString();
+          } else {
+            return numberOutput.toString();
+          }
+        } else {
+          if (number < 0) {
+            return "-" + zero.repeat(width - length) + numberOutput.toString();
+          } else {
+            return zero.repeat(width - length) + numberOutput.toString();
+          }
+        }
+      }
     </script>
     <script>
-      $(document).ready(function() {
+      $(document).ready(function () {
+        // get data
+        if (!!window.EventSource) {
+          console.log("SSE supported.");
+          var source = new EventSource(' {{ url_for("serial_update") }} ');
+
+          source.addEventListener(
+            "message",
+            function (e) {
+              console.log("------------");
+              console.log(e);
+              console.log("------------");
+              d = new Date();
+              day = d.getDate();
+              month = d.getMonth() + 1;
+              hour = zfill(d.getHours(), 2);
+              min = zfill(d.getMinutes(), 2);
+              sec = zfill(d.getSeconds(), 2);
+              date = day + "/" + month + " " + hour + ":" + min + ":" + sec;
+              document.getElementById("data").value +=
+                "[" + date + "] " + "Recibed: " + e.data + "\n";
+            },
+            false
+          );
+
+          source.addEventListener(
+            "open",
+            function (e) {
+              console.log("Connection was opened.");
+            },
+            false
+          );
+
+          source.addEventListener(
+            "error",
+            function (e) {
+              if (e.readyState == EventSource.CLOSED) {
+                console.log("Connection was closed.");
+              }
+            },
+            false
+          );
+        } else {
+          console.log("SSE notsupported.");
+        }
+      });
+    </script>
+    <script>
+      $(document).ready(function() { // Restore from memory
       let list_data = {{ input_from_python | tojson }};
       console.log(list_data)
       list_data.forEach(function(item){
         if (item[0] == false){
-          var logHtml = '<p class="botText"><span style="color:green"> Sended: </span> <span>' + item[1] + "</span></p>";
+          document.getElementById("data").value += "["+ item[2] + "] " + "Sended: " + item[1] + "\n"
         }else{
-          var logHtml = '<p class="botText"><span style="color:blue"> Recibed: </span> <span>' + item[1] + "</span></p>";
+          document.getElementById("data").value += "["+ item[2] + "] " + "Recibed: " + item[1] + "\n"
         }
-        $("#chatbox").append($.parseHTML(logHtml));
       })
       });
     </script>
-</head>
-<body>
-  <div class="row">
-    <div class="col-md-10 mr-auto ml-auto">
-      <h1>System sender</h1>
+  </head>
+  <body>
+    <div class="row">
+      <div class="col-md-10 mr-auto ml-auto">
+        <h1>System sender</h1>
         <form>
           <div id="chatbox">
             <div class="col-md-8 ml-auto mr-auto">
               <p class="botText"><span>Hi! I'm system sender.</span></p>
+              <textarea rows="10" cols="80" id="data" disabled></textarea>
             </div>
           </div>
           <div id="userInput" class="row">
             <div class="col-md-10">
-              <input id="text" type="text" name="msg" placeholder="Message" class="form-control">
-              <button type="submit" id="send" class="btn btn-warning">Send</button>
+              <input
+                id="text"
+                type="text"
+                name="msg"
+                placeholder="Message"
+                class="form-control"
+              />
+              <button type="submit" id="send" class="btn btn-warning">
+                Send
+              </button>
             </div>
           </div>
         </form>
-              <button action="/command/clear">clear</button>
+        <button action="/command/clear">clear</button>
       </div>
     </div>
 
     <script>
-      $(document).ready(function() {
-        $("form").on("submit", function(event) {
+      $(document).ready(function () {
+        $("form").on("submit", function (event) {
           var rawText = $("#text").val();
           var userHtml = '<p class="userText"><span>' + rawText + "</span></p>";
           $("#text").val("");
@@ -85,13 +137,22 @@
             },
             type: "POST",
             url: "/get",
-          }).done(function(data) {
-            if (data != "Empty"){
-              var botHtml = '<p class="botText"><span style="color:green"> Sended: </span> <span>' + rawText + "</span></p>";
-            }else{
-              var botHtml = '<p class="botText"><span> Error: ' + data + "</span></p>";
+          }).done(function (data) {
+            // Sending data
+            d = new Date();
+            day = d.getDate();
+            month = d.getMonth() + 1;
+            hour = zfill(d.getHours(), 2);
+            min = zfill(d.getMinutes(), 2);
+            sec = zfill(d.getSeconds(), 2);
+            date = day + "/" + month + " " + hour + ":" + min + ":" + sec;
+            if (data != "Empty") {
+              document.getElementById("data").value +=
+                "[" + date + "] " + "Sended: " + data + "\n";
+            } else {
+              document.getElementById("data").value +=
+                "[" + date + "] " + "Error: " + data + "\n";
             }
-            $("#chatbox").append($.parseHTML(botHtml));
             document.getElementById("userInput").scrollIntoView({
               block: "start",
               behavior: "smooth",
@@ -101,5 +162,5 @@
         });
       });
     </script>
-</body>
+  </body>
 </html>
